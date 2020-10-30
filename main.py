@@ -5,8 +5,12 @@ import math
 import random
 
 pygame.init()
+pygame.font.init()
 
-WIN_WIDTH = 1500
+FONT = pygame.font.SysFont("comicsans", 30)
+FONTL = pygame.font.SysFont("comicsans", 80)
+
+WIN_WIDTH = 1200
 WIN_HEIGHT = 500
 
 class Func:
@@ -51,34 +55,119 @@ class Output:
             pygame.draw.circle(win, (0,0,255), (p[0], p[1]), 1, 0)
 
 
-def convert():
-    pass
+# def convert():
+#     pass
 
-def mySort(data):
-    res = list()
-    curr = [0, 0]
-    while(data):
-        closest = data[0]
-        for p in data:
-            closeDis = dist(closest, p)
-            currDis = dist(curr, p)
+# def mySort(data):
+#     res = list()
+#     curr = [0, 0]
+#     while(data):
+#         closest = data[0]
+#         for p in data:
+#             closeDis = dist(closest, p)
+#             currDis = dist(curr, p)
             
-            if(currDis < closeDis):
-                closest = p
+#             if(currDis < closeDis):
+#                 closest = p
 
-        res.append(closest)
-        data.remove(closest)
-        curr = res[-1]
-    return res
+#         res.append(closest)
+#         data.remove(closest)
+#         curr = res[-1]
+#     return res
 
 
+# def dist(p1, p2):
+#     dis = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
+#     if (dis == 0):
+#         return 1000000
+#     else:    
+#         return dis
 
-def dist(p1, p2):
-    dis = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-    if (dis == 0):
-        return 1000000
-    else:    
-        return dis
+def intro(win, clock):
+    baseA = 100
+    baseF = 0
+    epicycles = 1
+    base = Func(0, 0, 0)
+    base.centerX = 875
+    base.centerY = 275 
+
+    header = FONTL.render("Initialize fourier series:", 1, (255,255,255))
+
+    starttext = FONT.render("Draw", 1, (255,255,255))
+    startB = [400, 360, 100, 110]
+    
+    amptext = FONT.render("Amplitude", 1, (255,255,255))
+    ampBP = [75, 150, 100, 50]
+    ampBM = [75, 210, 100, 50]
+
+
+    freqtext = FONT.render("Frequency", 1, (255,255,255))
+    freqBP = [400, 150, 100, 50]
+    freqBM = [400, 210, 100, 50]
+
+    cyctext = FONT.render("Cycles", 1, (255,255,255))
+    cycleBP = [75, 360, 100, 50]
+    cycleBM = [75, 420, 100, 50]
+
+    plustext = FONT.render("+", 1, (0,0,0))
+    minustext = FONT.render("-", 1, (0,0,0))
+
+    checktext = FONT.render('Δ', 1, (0,0,0))
+
+    buttons = [startB, ampBP, ampBM, freqBP, freqBM, cycleBP, cycleBM]
+    texts = [[header, (275, 20)], [starttext, (425, 330)], [amptext,(75, 120)] , [freqtext,(400, 120)], [cyctext,(95, 330)], [plustext, (118, 165)], [minustext, (120, 225)], [plustext, (118, 375)], [minustext, (120, 435)], [plustext, (443, 165)], [minustext, (445, 225)], [checktext, (445, 405)]]         
+
+    t1 = time.time()
+    intro = True
+    while intro:
+        clock.tick(120)
+        mouse = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if mouse[0] < startB[0]+startB[2] and startB[0] < mouse[0] and mouse[1] < startB[1]+startB[3] and startB[1] < mouse[1]:
+                    intro = False
+                    break
+                if mouse[0] < ampBP[0]+ampBP[2] and ampBP[0] < mouse[0] and mouse[1] < ampBP[1]+ampBP[3] and ampBP[1] < mouse[1]:
+                    baseA += 1
+                if mouse[0] < ampBM[0]+ampBM[2] and ampBM[0] < mouse[0] and mouse[1] < ampBM[1]+ampBM[3] and ampBM[1] < mouse[1]:
+                    baseA -= 1
+                if mouse[0] < freqBP[0]+freqBP[2] and freqBP[0] < mouse[0] and mouse[1] < freqBP[1]+freqBP[3] and freqBP[1] < mouse[1]:
+                    baseF += 1
+                if mouse[0] < freqBM[0]+freqBM[2] and freqBM[0] < mouse[0] and mouse[1] < freqBM[1]+freqBM[3] and freqBM[1] < mouse[1]:
+                    baseF -= 1
+                if mouse[0] < cycleBP[0]+cycleBP[2] and cycleBP[0] < mouse[0] and mouse[1] < cycleBP[1]+cycleBP[3] and cycleBP[1] < mouse[1]:
+                    epicycles += 1
+                if mouse[0] < cycleBM[0]+cycleBM[2] and cycleBM[0] < mouse[0] and mouse[1] < cycleBM[1]+cycleBM[3] and cycleBM[1] < mouse[1]:
+                    epicycles -= 1
+        
+        base.radius = baseA
+        base.omega = baseF
+
+        base.rotate(1.8*(time.time() - t1))
+        drawIntro(win, buttons, texts, base, baseA, baseF, epicycles)
+    return baseA, baseF, epicycles
+        
+
+def drawIntro(win, buttons, texts, base, baseA, baseF, epicycles):
+    win.fill((0,0,0))
+    for b in buttons:
+        pygame.draw.rect(win, (255,255,255), b)
+
+    for t in texts:        
+        win.blit(t[0], t[1]) 
+    base.draw(win)
+    ampVal = FONTL.render(str(baseA), 1, (255,255,255))
+    win.blit(ampVal, (200, 180))
+    freqVal = FONTL.render(str(baseF), 1, (255,255,255))
+    win.blit(freqVal, (530, 180))
+    cycVal = FONTL.render(str(epicycles), 1, (255,255,255))
+    win.blit(cycVal, (200, 390))
+    pygame.display.update()
+        
+
 
 def drawWindow(win, functions, res):
     pygame.draw.rect(win, (0,0,0), (0, 0, WIN_WIDTH, WIN_HEIGHT))
@@ -88,29 +177,39 @@ def drawWindow(win, functions, res):
     pygame.draw.line(win, (255, 0, 0), (functions[-1].x, functions[-1].y), (500, functions[-1].y))
     pygame.display.update()
 
-def main():
-    win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+def main(win, clock, baseA, baseF, epicycles):
     run = True
-    clock = pygame.time.Clock()
     res = Output()
-    base = Func(100, -2, 0)
+    base = Func(baseA, baseF, 0)
     functions = list()
     functions.append(base)
     
-    for x in range(4, 50, 2):
-        functions.append(Func(100/x, -x, 0, functions[-1]))
+    if baseF < 0:
+        start = baseF - 2
+        step = -2
+        end = (epicycles * step) + baseF
+    elif baseF > 0:
+        start = baseF + 2
+        step = 2
+        end = (epicycles * step) + baseF
+    else:
+        run = False
+        return
+
+    for x in range(start, end, step):
+        functions.append(Func(baseA/abs(x), x, 0, functions[-1]))
     
     
     t1 = time.time()
     while(run):
-        clock.tick(60)
+        clock.tick(120)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
-        base.rotate(time.time() - t1)
+        t2 = 1.8*(time.time() - t1)
+        base.rotate(t2)
         for i in range(1, len(functions)):
-            functions[i].rotate(time.time() - t1, functions[i-1])
+            functions[i].rotate(t2, functions[i-1])
 
         
 
@@ -121,9 +220,10 @@ def main():
     pygame.quit()
     quit()
 
-main()
 
-# inp = [[7,2], [11, 12], [3,2], [5, 10], [8, 6]]
-# print(inp)
-# res = mySort(inp)
-# print(res)
+
+myWin = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+myClock = pygame.time.Clock()
+baseA, baseF, epicycles = intro(myWin, myClock)
+main(myWin, myClock, baseA, baseF, epicycles)
+
