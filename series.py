@@ -36,7 +36,9 @@ class Func:
 
     def draw(self, win):
         pygame.draw.circle(win, (255,255,255), (self.centerX, self.centerY), self.radius, 1)
-        pygame.draw.circle(win, (255,0,0), (self.x, self.y), 3, 0)
+        # pygame.draw.circle(win, (255,0,0), (self.x, self.y), 3, 0)
+        pygame.draw.line(win, (255,255,255,127), (self.centerX, self.centerY), (self.x, self.y), 1)
+
 
 class Output:
     def __init__(self):
@@ -50,37 +52,10 @@ class Output:
             self.points.pop(0)
     
     def draw(self, win):
-        for p in self.points:
-            pygame.draw.circle(win, (0,0,255), (p[0], p[1]), 1, 0)
+        if(len(self.points) > 1):
+            pygame.draw.lines(win, (0,0,255), False, self.points)
 
 
-# def convert():
-#     pass
-
-# def mySort(data):
-#     res = list()
-#     curr = [0, 0]
-#     while(data):
-#         closest = data[0]
-#         for p in data:
-#             closeDis = dist(closest, p)
-#             currDis = dist(curr, p)
-            
-#             if(currDis < closeDis):
-#                 closest = p
-
-#         res.append(closest)
-#         data.remove(closest)
-#         curr = res[-1]
-#     return res
-
-
-# def dist(p1, p2):
-#     dis = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-#     if (dis == 0):
-#         return 1000000
-#     else:    
-#         return dis
 
 def intro(win, clock):
     baseA = 100
