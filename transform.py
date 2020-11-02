@@ -47,30 +47,31 @@ class Output:
 
     def update(self, point):
         self.points.append(point)
-        if len(self.points) > 120:
+        if len(self.points) > 1000:
             self.points.pop(0)
     
     def draw(self, win):
-        if self.flag:
+        if len(self.points) > 1:
             pygame.draw.lines(win, (0,0,255), False, self.points)
-        else:
-            for p in self.points:
-                pygame.draw.circle(win, (0,0,255), (p[0], p[1]), 1, 0)
+        # else:
+        #     for p in self.points:
+        #         pygame.draw.circle(win, (0,0,255), (p[0], p[1]), 1, 0)
 
 def outline(image):
     img = cv2.imread(image)
     bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # ret,thresh = cv2.threshold(bw,15,255,cv2.THRESH_BINARY_INV)
-    thresh = cv2.adaptiveThreshold(bw, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 199, 5)
+    ret,thresh1 = cv2.threshold(bw,127,255,cv2.THRESH_BINARY)
+    thresh = cv2.adaptiveThreshold(thresh1, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 2)
     
-    # cv2.imshow('test',thresh)
-    # cv2.waitKey(0)
+    cv2.imshow('test',thresh)
+    cv2.waitKey(0)
 
-    kernel = np.ones((5,5),np.uint8)
+    kernel = np.ones((3,3),np.uint8)
     erosion = cv2.erode(thresh, kernel,iterations = 1)
     opening = cv2.morphologyEx(erosion, cv2.MORPH_OPEN, kernel)
     closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
     
+
     contours, hierarchy = cv2.findContours(closing,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE) 
     
     areas = list()
@@ -84,9 +85,10 @@ def outline(image):
     cnt = contours[max_area_index]
     blank = np.zeros((img.shape[0:2]), np.uint8)
 
+    # cv2.drawContours(blank, [cnt], 0, (255, 255, 255), 1, maxLevel = 0)
     cv2.drawContours(blank, [cnt], 0, (255, 255, 255), 1, maxLevel = 0)
-    # cv2.imshow('test',blank)
-    # cv2.waitKey(0)
+    cv2.imshow('test',blank)
+    cv2.waitKey(0)
     return blank
 
 # def convert(comp):
@@ -113,20 +115,24 @@ def fft(x):
 def preprocess(image):
     img = outline(image)
     y, x = np.nonzero(img)
-
+    
     inp = list()
     for i in range(len(x)):
         inp.append(np.complex(x[i]-img.shape[1]/2, y[i]-img.shape[0]/2))
-        # inp.append(np.complex(x[i]-img.shape[1]/2 + (WIN_WIDTH/2), y[i]-img.shape[0]/2) + (WIN_HEIGHT/2))
-    skip = int(len(inp)/100)
+    
+    inp = complexSort.mySort(inp)
+
+    skip = int(len(inp)/200)
     inp = inp[0::skip]
+
+    inp = complexSort.mySort(inp)
 
     out = fft(inp)
 
     # X = [x[3].real for x in out]
     # Y = [x[3].imag for x in out]
     X = [x.real for x in inp]
-    Y = [x.imag for x in inp]
+    Y = [-1*x.imag for x in inp]
     plt.scatter(X,Y, color='red')
     plt.show()
 
@@ -160,22 +166,20 @@ def drawWindow(win, functions, res):
 
 
 def main(image):
-    out = preprocess(image)
-
-    functions = generateEpicycle(out)
-    
-
-    base = functions[0]
-
-    run = True
-    res = Output()
-
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     clock = pygame.time.Clock()
 
+
+    out = preprocess(image)
+    functions = generateEpicycle(out)
+
+    base = functions[0]
+    res = Output()
+
+    count = len(out) * 1
     t1 = 0
-    dt = 2 * np.pi / len(out)
-    count = len(out)
+    dt = 2 * np.pi / count
+    run = True
     while(run):
         clock.tick(60)
         for event in pygame.event.get():
@@ -186,7 +190,7 @@ def main(image):
         for i in range(1, len(functions)):
             functions[i].rotate(t1, functions[i-1])
 
-        if count > 0:
+        if count >= 0:
             res.update([functions[-1].x + 800, functions[-1].y])
             # if count == 1:
             #     res.flag = True
@@ -200,5 +204,6 @@ def main(image):
     quit()
 
 
-main("test.png")
+main("test3.png")
+# preprocess("test.png")
 
