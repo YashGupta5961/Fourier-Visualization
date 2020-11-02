@@ -63,8 +63,8 @@ def outline(image):
     ret,thresh1 = cv2.threshold(bw,127,255,cv2.THRESH_BINARY)
     thresh = cv2.adaptiveThreshold(thresh1, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 2)
     
-    cv2.imshow('test',thresh)
-    cv2.waitKey(0)
+    # cv2.imshow('test',thresh)
+    # cv2.waitKey(0)
 
     kernel = np.ones((3,3),np.uint8)
     erosion = cv2.erode(thresh, kernel,iterations = 1)
@@ -85,10 +85,10 @@ def outline(image):
     cnt = contours[max_area_index]
     blank = np.zeros((img.shape[0:2]), np.uint8)
 
-    # cv2.drawContours(blank, [cnt], 0, (255, 255, 255), 1, maxLevel = 0)
+    
     cv2.drawContours(blank, [cnt], 0, (255, 255, 255), 1, maxLevel = 0)
-    cv2.imshow('test',blank)
-    cv2.waitKey(0)
+    # cv2.imshow('test',blank)
+    # cv2.waitKey(0)
     return blank
 
 # def convert(comp):
@@ -129,10 +129,9 @@ def preprocess(image):
 
     out = fft(inp)
 
-    # X = [x[3].real for x in out]
-    # Y = [x[3].imag for x in out]
     X = [x.real for x in inp]
     Y = [-1*x.imag for x in inp]
+
     plt.scatter(X,Y, color='red')
     plt.show()
 
