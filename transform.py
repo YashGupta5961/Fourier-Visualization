@@ -47,7 +47,7 @@ class Output:
 
     def update(self, point):
         self.points.append(point)
-        if len(self.points) > 1000:
+        if len(self.points) > 10000:
             self.points.pop(0)
     
     def draw(self, win):
@@ -127,7 +127,7 @@ def preprocess(image):
     skip = int(len(inp)/200)
     inp = inp[0::skip]
 
-    inp = complexSort.mySort(inp)
+    
 
     out = fft(inp)
 
