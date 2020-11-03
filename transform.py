@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-import time
+import sys
 import cv2
 from matplotlib import pyplot as plt
 import complexSort
@@ -120,7 +120,9 @@ def preprocess(image):
     for i in range(len(x)):
         inp.append(np.complex(x[i]-img.shape[1]/2, y[i]-img.shape[0]/2))
     
-    inp = complexSort.mySort(inp)
+    
+    inp = complexSort.mySort3(inp)
+    
 
     skip = int(len(inp)/200)
     inp = inp[0::skip]
@@ -129,11 +131,11 @@ def preprocess(image):
 
     out = fft(inp)
 
-    X = [x.real for x in inp]
-    Y = [-1*x.imag for x in inp]
+    # X = [x.real for x in inp]
+    # Y = [-1*x.imag for x in inp]
 
-    plt.scatter(X,Y, color='red')
-    plt.show()
+    # plt.scatter(X,Y, color='red')
+    # plt.show()
 
     out.sort(key = lambda x: x[0])
     out.reverse()
@@ -165,10 +167,7 @@ def drawWindow(win, functions, res):
 
 
 def main(image):
-    win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-    clock = pygame.time.Clock()
-
-
+    print("Processing image...")
     out = preprocess(image)
     functions = generateEpicycle(out)
 
@@ -179,6 +178,9 @@ def main(image):
     t1 = 0
     dt = 2 * np.pi / count
     run = True
+
+    win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    clock = pygame.time.Clock()
     while(run):
         clock.tick(60)
         for event in pygame.event.get():
@@ -202,7 +204,8 @@ def main(image):
     pygame.quit()
     quit()
 
+if __name__ == "__main__":
+   main(sys.argv[1])
 
-main("test3.png")
 # preprocess("test.png")
 
